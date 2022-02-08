@@ -21,7 +21,7 @@ const schemaContactID = Joi.object({
 
 const validate = async (schema, obj, res, next) => {
   try {
-    const value = await schema.validateAsync(obj)
+    await schema.validateAsync(obj)
     next()
   } catch (err) {
     res.status(400).json({

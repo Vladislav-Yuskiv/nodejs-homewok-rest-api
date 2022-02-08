@@ -27,6 +27,7 @@ const addContacts = async (req, res, next) => {
 const removeContacts = async (req, res, next) => {
   const userId = req.user._id
   const contact = await Contacts.removeContact(req.params.contactId, userId)
+
   if (contact) {
     return res
       .status(200)
@@ -43,6 +44,8 @@ const updateContact = async (req, res, next) => {
     req.body,
     userId
   )
+  console.log(contact)
+
   if (contact) {
     return res
       .status(200)

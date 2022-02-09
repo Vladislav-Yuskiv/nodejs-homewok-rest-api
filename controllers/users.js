@@ -1,9 +1,11 @@
 const jwt = require('jsonwebtoken')
 const Users = require('../repository/users')
+const UploadService = require('../services/file-upload')
 const { HttpCode } = require('../config/constants')
 require('dotenv').config()
-const { CustomError } = require('../helpers/custom_error')
 const SECRET_KEY = process.env.JVT_SECRET_KEY
+
+const { CustomError } = require('../helpers/custom_error')
 
 const registration = async (req, res, next) => {
   const { email, password, subscription } = req.body
@@ -24,6 +26,7 @@ const registration = async (req, res, next) => {
         id: newUser.id,
         email: newUser.email,
         subscription: newUser.subscription,
+        avatar: newUser.avatar,
       },
     })
   } catch (e) {
@@ -38,7 +41,7 @@ const login = async (req, res, next) => {
   const user = await Users.findByEmail(email)
   let isValidPassword = false
   if (user) {
-    isValidPassword = await user.isValidPassword(password.toString())
+    isValidPassword = await user?.isValidPassword(password.toString())
   }
   if (!user || !isValidPassword) {
     return res.status(HttpCode.UNAUTHORIZED).json({
@@ -81,4 +84,30 @@ const getCurrent = async (req, res, next) => {
     .json({ status: 'success', code: 200, data: { user: req.user } })
 }
 
-module.exports = { registration, login, logout, updateSubscription, getCurrent }
+const uploadAvatar = async (req, res, next) => {
+  const id = String(req.user._id)
+
+  const file = req.file
+  const destination = process.env.AVATAR_OF_USERS
+
+  const uploadService = new UploadService(destination)
+  const avatarUrl = await uploadService.save(file)
+  await Users.updateAvatar(id, avatarUrl)
+
+  return res.status(HttpCode.OK).json({
+    status: 'success',
+    code: HttpCode.OK,
+    data: {
+      avatar: avatarUrl,
+    },
+  })
+}
+
+module.exports = {
+  registration,
+  login,
+  logout,
+  updateSubscription,
+  getCurrent,
+  uploadAvatar,
+}

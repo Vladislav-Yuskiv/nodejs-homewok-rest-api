@@ -25,10 +25,16 @@ const updateSubscription = async (id, body) => {
   ).select(['-password', '-token'])
   return result
 }
+
+const updateAvatar = async (id, avatar) => {
+  return await User.updateOne({ _id: id }, { avatar })
+}
+
 module.exports = {
   findByEmail,
   create,
   updateToken,
   findById,
   updateSubscription,
+  updateAvatar,
 }

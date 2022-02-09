@@ -3,6 +3,7 @@ const gravatar = require('gravatar')
 const { Subscription } = require('../config/constants')
 const bcrypt = require('bcryptjs')
 const SALT_FACTOR = 6
+const crypto = require('crypto')
 
 const usersSchema = new Schema(
   {
@@ -38,6 +39,8 @@ const usersSchema = new Schema(
         return gravatar.url(this.email, { s: '250' }, true)
       },
     },
+    isVerified: { type: Boolean, default: false },
+    verifyToken: { type: String, required: true, default: crypto.randomUUID() },
   },
   {
     versionKey: false,
